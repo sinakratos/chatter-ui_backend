@@ -1,11 +1,12 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
 
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { UseGuards } from '@nestjs/common';
+
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { TokenPayload } from 'src/auth/token-payload.interface';
@@ -44,5 +45,11 @@ export class UsersResolver {
 	@UseGuards(GqlAuthGuard)
 	removeUser(@CurrentUser() user: TokenPayload) {
 		return this.usersService.remove(user._id);
+	}
+
+	@UseGuards(GqlAuthGuard)
+	@Query(() => User, { name: 'me' })
+	getMe(@CurrentUser() user: TokenPayload) {
+		return user;
 	}
 }

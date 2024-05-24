@@ -6,10 +6,12 @@ import { LoggerModule } from 'nestjs-pino';
 import * as Joi from 'joi';
 
 import { AppController } from './app.controller';
-import { UsersModule } from './users/users.module';
 import { AppService } from './app.service';
-import { DatabaseModule } from './common/database/database.module';
+
+import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+
+import { DatabaseModule } from './common/database/database.module';
 
 @Module({
 	imports: [
