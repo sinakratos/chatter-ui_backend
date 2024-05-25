@@ -8,6 +8,7 @@ import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+import { ChatsModule } from './chats/chats.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 
@@ -49,6 +50,7 @@ import { DatabaseModule } from './common/database/database.module';
 			inject: [ConfigService],
 		}),
 		AuthModule,
+		ChatsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
