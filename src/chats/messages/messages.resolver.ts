@@ -1,11 +1,11 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
 import { MessagesService } from './messages.service';
 
-import { Message } from './entities/message.entity';
-
 import { CreateMessageInput } from './dto/create-message.input';
+import { GetMessagesArgs } from './dto/get-messages.args';
+import { Message } from './entities/message.entity';
 
 import { GqlAuthGuard } from '../../auth/guards/gql-auth.guard';
 import { CurrentUser } from '../../auth/current-user.decorator';
@@ -22,5 +22,14 @@ export class MessagesResolver {
 		@CurrentUser() user: TokenPayload
 	) {
 		return this.messagesService.createMessage(createMessageInput, user._id);
+	}
+
+	@Query(() => [Message], { name: 'messages' })
+	@UseGuards(GqlAuthGuard)
+	async getMessages(
+		@Args() getMessageArgs: GetMessagesArgs,
+		@CurrentUser() user: TokenPayload
+	) {
+		return this.messagesService.getMessages(getMessageArgs, user._id);
 	}
 }
