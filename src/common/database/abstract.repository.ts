@@ -9,19 +9,15 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
 	constructor(protected readonly model: Model<T>) {}
 
 	async create(document: Omit<T, '_id'>): Promise<T> {
-		const createDocument = new this.model({
+		const createdDocument = new this.model({
 			...document,
 			_id: new Types.ObjectId(),
 		});
-		return ((await createDocument.save()).toJSON() as unknown) as T;
+		return ((await createdDocument.save()).toJSON() as unknown) as T;
 	}
 
-	async findOne(filterQuery: FilterQuery<T>) {
-		const document = await this.model.findOne(
-			filterQuery,
-			{},
-			{ lean: true }
-		);
+	async findOne(filterQuery: FilterQuery<T>): Promise<T> {
+		const document = await this.model.findOne(filterQuery, {}).lean<T>();
 
 		if (!document) {
 			this.logger.warn(
