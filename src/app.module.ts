@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module, UnauthorizedException } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -13,6 +13,9 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 
 import { DatabaseModule } from './common/database/database.module';
+import { PubSubModule } from './common/pubsub/pubsub.module';
+import { Request } from 'express';
+import { AuthService } from './auth/auth.service';
 
 @Module({
 	imports: [
@@ -22,9 +25,27 @@ import { DatabaseModule } from './common/database/database.module';
 				MONGODB_URI: Joi.string().required(),
 			}),
 		}),
-		GraphQLModule.forRoot<ApolloDriverConfig>({
+		GraphQLModule.forRootAsync<ApolloDriverConfig>({
 			driver: ApolloDriver,
-			autoSchemaFile: true,
+			useFactory: (AuthService: AuthService) => ({
+				autoSchemaFile: true,
+				subscriptions: {
+					'graphql-ws': {
+						onConnect: (context: any) => {
+							try {
+								const request: Request = context.extra.request;
+								const user = AuthService.verifyWs(request);
+								context.user = user;
+							} catch (err) {
+								new Logger().error(err);
+								throw new UnauthorizedException();
+							}
+						},
+					},
+				},
+			}),
+			imports: [AuthModule],
+			inject: [AuthService],
 		}),
 		DatabaseModule,
 		UsersModule,
@@ -51,6 +72,7 @@ import { DatabaseModule } from './common/database/database.module';
 		}),
 		AuthModule,
 		ChatsModule,
+		PubSubModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

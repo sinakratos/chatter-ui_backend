@@ -15,6 +15,6 @@ import { DatabaseModule } from 'src/common/database/database.module';
 		forwardRef(() => MessagesModule),
 	],
 	providers: [ChatsResolver, ChatsService, ChatsRepository],
-	exports: [ChatsRepository],
+	exports: [ChatsRepository, ChatsService],
 })
 export class ChatsModule {}

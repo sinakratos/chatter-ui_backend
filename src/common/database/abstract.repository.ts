@@ -54,8 +54,8 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
 		return document;
 	}
 
-	async find(filterQuery: FilterQuery<T>) {
-		return this.model.find(filterQuery, {}, { lean: true });
+	async find(filterQuery: FilterQuery<T>): Promise<T[]> {
+		return this.model.find(filterQuery).lean<T[]>();
 	}
 
 	async findOneAndDelete(filterQuery: FilterQuery<T>) {
